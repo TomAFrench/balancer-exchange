@@ -1,10 +1,9 @@
 import { action, observable, ObservableMap } from 'mobx';
 import RootStore from 'stores/Root';
-import { ethers } from 'ethers';
 import UncheckedJsonRpcSigner from 'provider/UncheckedJsonRpcSigner';
-import { ActionResponse, sendAction } from './actions/actions';
-import { web3Window as window } from 'provider/Web3Window';
-import { backupUrls, supportedChainId, web3Modal } from 'provider/connectors';
+import { ethers } from 'ethers';
+import initSdk, { SdkInstance, SafeInfo } from "@gnosis.pm/safe-apps-sdk";
+import { backupUrls, supportedChainId } from 'provider/connectors';
 
 export enum ContractTypes {
     BPool = 'BPool',
@@ -54,36 +53,62 @@ export interface ProviderStatus {
     error: Error;
 }
 
+export interface SafeStatus {
+    safeInfo: SafeInfo,
+    gnosisSdk: SdkInstance
+}
+
+type Transaction = {
+    data: string,
+    to: string,
+    value: number
+}
+
+type FunctionCall = {
+    contractType: ContractTypes,
+    contractAddress: string,
+    action: string,
+    params: any[],
+    overrides?: any
+}
+
+const safeMultisigUrls: RegExp[] = [/http:\/\/localhost:3000/];
+
 export default class ProviderStore {
     @observable chainData: ChainData;
     @observable providerStatus: ProviderStatus;
-    web3Modal: any;
+    safeStatus: SafeStatus;
     rootStore: RootStore;
 
     constructor(rootStore) {
         this.rootStore = rootStore;
         this.chainData = { currentBlockNumber: -1 } as ChainData;
-        this.web3Modal = web3Modal;
         this.providerStatus = {} as ProviderStatus;
+        this.safeStatus = {} as SafeStatus;
         this.providerStatus.active = false;
         this.providerStatus.injectedLoaded = false;
         this.providerStatus.injectedActive = false;
         this.providerStatus.backUpLoaded = false;
         this.providerStatus.activeProvider = null;
+        this.safeStatus.gnosisSdk = initSdk(safeMultisigUrls)
 
         this.handleNetworkChanged = this.handleNetworkChanged.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleAccountsChanged = this.handleAccountsChanged.bind(this);
+        this.setSafeInfo = this.setSafeInfo.bind(this)
+
+        this.safeStatus.gnosisSdk.addListeners({
+            onSafeInfo: this.setSafeInfo,
+        });
+    }
+
+    setSafeInfo(safeInfo: SafeInfo):void {
+        console.log("Setting account to ", safeInfo.safeAddress)
+        this.safeStatus.safeInfo = safeInfo;
     }
 
     getCurrentBlockNumber(): number {
         return this.chainData.currentBlockNumber;
-    }
-
-    async loadWeb3Modal(): Promise<void> {
-        let provider = await this.web3Modal.connect();
-        console.log(`[Provider] Web3Modal`);
-        if (provider) await this.loadWeb3(provider);
     }
 
     @action setCurrentBlockNumber(blockNumber): void {
@@ -146,14 +171,13 @@ export default class ProviderStore {
         return new ethers.Contract(address, schema[type], library);
     }
 
-    @action sendTransaction = async (
+    encodeTransaction = (
         contractType: ContractTypes,
         contractAddress: string,
         action: string,
         params: any[],
         overrides?: any
-    ): Promise<ActionResponse> => {
-        const { transactionStore } = this.rootStore;
+    ): Transaction => {
         const chainId = this.providerStatus.activeChainId;
         const account = this.providerStatus.account;
 
@@ -173,25 +197,34 @@ export default class ProviderStore {
             account
         );
 
-        const response = await sendAction({
-            contract,
-            action,
-            sender: account,
-            data: params,
-            overrides,
-        });
-
-        const { error, txResponse } = response;
-
-        if (error) {
-            console.warn('[Send Transaction Error', error);
-        } else if (txResponse) {
-            transactionStore.addTransactionRecord(account, txResponse);
-        } else {
-            throw new Error(ERRORS.BlockchainActionNoResponse);
+        const transaction = {
+            data: contract.interface.functions[action].encode(params),
+            to: contract.address,
+            value: 0
         }
 
-        return response;
+        return transaction;
+    };
+
+    @action sendTransaction = (
+        contractType: ContractTypes,
+        contractAddress: string,
+        action: string,
+        params: any[],
+        overrides?: any
+    ): Transaction[] => this.sendTransactions([{contractType, contractAddress, action, params, overrides}])
+
+    @action sendTransactions = (
+        transactions: FunctionCall[]
+    ): Transaction[] => {
+        const encodedTransactions = transactions.map(
+            ({contractType, contractAddress, action, params, overrides}) =>
+                this.encodeTransaction(contractType, contractAddress, action, params, overrides)
+        )
+
+        // Pass transactions to Gnosis SDK
+
+        return encodedTransactions;
     };
 
     @action async handleNetworkChanged(
@@ -303,61 +336,33 @@ export default class ProviderStore {
         Injected web3 loaded and active if chain Id matches.
         Backup web3 loaded and active if no injected or injected chain Id not correct.
         */
-        if (provider === null && window.ethereum) {
-            console.log(`[Provider] Loading Injected Provider`);
-            await this.loadProvider(window.ethereum);
-        } else if (provider) {
-            console.log(`[Provider] Loading Provider`);
-            await this.loadProvider(provider);
-        }
 
         // If no injected provider or inject provider is wrong chain fall back to Infura
-        if (
-            !this.providerStatus.injectedLoaded ||
-            this.providerStatus.injectedChainId !== supportedChainId
-        ) {
-            console.log(
-                `[Provider] Reverting To Backup Provider.`,
-                this.providerStatus
+        try {
+            let web3 = new ethers.providers.JsonRpcProvider(
+                backupUrls[supportedChainId]
             );
-            try {
-                let web3 = new ethers.providers.JsonRpcProvider(
-                    backupUrls[supportedChainId]
-                );
-                let network = await web3.getNetwork();
-                this.providerStatus.injectedActive = false;
-                this.providerStatus.backUpLoaded = true;
-                this.providerStatus.account = null;
-                this.providerStatus.activeChainId = network.chainId;
-                this.providerStatus.backUpWeb3 = web3;
-                this.providerStatus.library = web3;
-                this.providerStatus.activeProvider = 'backup'; //backupUrls[supportedChainId];
-                console.log(`[Provider] BackUp Provider Loaded & Active`);
-            } catch (err) {
-                console.error(`[Provider] loadWeb3 BackUp Error`, err);
-                this.providerStatus.injectedActive = false;
-                this.providerStatus.backUpLoaded = false;
-                this.providerStatus.account = null;
-                this.providerStatus.activeChainId = null;
-                this.providerStatus.backUpWeb3 = null;
-                this.providerStatus.library = null;
-                this.providerStatus.active = false;
-                this.providerStatus.error = new Error(ERRORS.NoWeb3);
-                this.providerStatus.activeProvider = null;
-                return;
-            }
-        } else {
-            console.log(`[Provider] Injected provider active.`);
-            this.providerStatus.library = this.providerStatus.injectedWeb3;
-            this.providerStatus.activeChainId = this.providerStatus.injectedChainId;
-            // Only fetch if not first page load as could be change of provider
-            if (
-                this.providerStatus.account &&
-                this.providerStatus.injectedActive
-            )
-                this.fetchUserBlockchainData(this.providerStatus.account);
-
-            this.providerStatus.injectedActive = true;
+            let network = await web3.getNetwork();
+            this.providerStatus.injectedActive = false;
+            this.providerStatus.backUpLoaded = true;
+            this.providerStatus.account = this.safeStatus.safeInfo && this.safeStatus.safeInfo.safeAddress;
+            this.providerStatus.activeChainId = network.chainId;
+            this.providerStatus.backUpWeb3 = web3;
+            this.providerStatus.library = web3;
+            this.providerStatus.activeProvider = 'backup'; //backupUrls[supportedChainId];
+            console.log(`[Provider] BackUp Provider Loaded & Active`);
+        } catch (err) {
+            console.error(`[Provider] loadWeb3 BackUp Error`, err);
+            this.providerStatus.injectedActive = false;
+            this.providerStatus.backUpLoaded = false;
+            this.providerStatus.account = null;
+            this.providerStatus.activeChainId = null;
+            this.providerStatus.backUpWeb3 = null;
+            this.providerStatus.library = null;
+            this.providerStatus.active = false;
+            this.providerStatus.error = new Error(ERRORS.NoWeb3);
+            this.providerStatus.activeProvider = null;
+            return;
         }
 
         this.providerStatus.active = true;
