@@ -2,7 +2,6 @@ import React from 'react';
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import Web3ReactManager from 'components/Web3ReactManager';
-import Header from 'components/Header';
 import SwapForm from 'components/SwapForm';
 import { isAddress, toChecksum } from 'utils/helpers';
 import './App.css';
@@ -59,7 +58,6 @@ const App = () => {
     return (
         <Web3ReactManager>
             <HashRouter>
-                <Header />
                 {renderViews()}
                 <BuildVersion>
                     BUILD ID:{' '}
