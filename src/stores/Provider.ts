@@ -64,7 +64,7 @@ type Transaction = {
     value: number
 }
 
-type FunctionCall = {
+export type FunctionCall = {
     contractType: ContractTypes,
     contractAddress: string,
     action: string,
@@ -221,6 +221,7 @@ export default class ProviderStore {
         )
 
         // Pass transactions to Gnosis SDK
+        this.safeStatus.gnosisSdk.sendTransactions(encodedTransactions)
 
         return encodedTransactions;
     };

@@ -1,9 +1,9 @@
 import { action, observable } from 'mobx';
-import { bnum, scale, fromWei } from 'utils/helpers';
+import { bnum, scale, fromWei, MAX_UINT } from 'utils/helpers';
 import RootStore from 'stores/Root';
 import { BigNumber } from 'utils/bignumber';
 import * as log from 'loglevel';
-import { ContractTypes } from './Provider';
+import { ContractTypes, FunctionCall } from './Provider';
 import { SwapMethods } from './SwapForm';
 import { ethers } from 'ethers';
 import { EtherKey } from './Token';
@@ -241,7 +241,7 @@ export default class ProxyStore {
         if (tokenIn === EtherKey) {
             tokenIn = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
-            await providerStore.sendTransaction(
+            providerStore.sendTransaction(
                 ContractTypes.ExchangeProxy,
                 proxyAddress,
                 'multihopBatchSwapExactIn',
@@ -261,31 +261,49 @@ export default class ProxyStore {
         } else if (tokenOut === EtherKey) {
             tokenOut = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
-            await providerStore.sendTransaction(
-                ContractTypes.ExchangeProxy,
-                proxyAddress,
-                'multihopBatchSwapExactIn',
-                [
+            const approvalTransaction: FunctionCall = {
+                contractType: ContractTypes.TestToken,
+                contractAddress: tokenIn,
+                action: 'approve',
+                params: [proxyAddress, MAX_UINT.toString()]
+            }
+
+            const tradeTransaction: FunctionCall = {
+                contractType: ContractTypes.ExchangeProxy,
+                contractAddress: proxyAddress,
+                action: 'multihopBatchSwapExactIn',
+                params: [
                     swaps,
                     tokenIn,
                     tokenOut,
                     scale(tokenAmountIn, decimalsIn).toString(),
                     minAmountOut.toString(),
                 ]
-            );
+            }
+
+            providerStore.sendTransactions([approvalTransaction, tradeTransaction]);
         } else {
-            await providerStore.sendTransaction(
-                ContractTypes.ExchangeProxy,
-                proxyAddress,
-                'multihopBatchSwapExactIn',
-                [
+            const approvalTransaction: FunctionCall = {
+                contractType: ContractTypes.TestToken,
+                contractAddress: tokenIn,
+                action: 'approve',
+                params: [proxyAddress, MAX_UINT.toString()]
+            }
+
+            const tradeTransaction: FunctionCall = {
+                contractType: ContractTypes.ExchangeProxy,
+                contractAddress: proxyAddress,
+                action: 'multihopBatchSwapExactIn',
+                params: [
                     swaps,
                     tokenIn,
                     tokenOut,
                     scale(tokenAmountIn, decimalsIn).toString(),
                     minAmountOut.toString(),
                 ]
-            );
+            }
+
+            providerStore.sendTransactions([approvalTransaction, tradeTransaction]);
         }
     };
 
@@ -321,7 +339,7 @@ export default class ProxyStore {
         if (tokenIn === EtherKey) {
             tokenIn = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
-            await providerStore.sendTransaction(
+            providerStore.sendTransaction(
                 ContractTypes.ExchangeProxy,
                 proxyAddress,
                 'multihopBatchSwapExactOut',
@@ -332,20 +350,47 @@ export default class ProxyStore {
             );
         } else if (tokenOut === EtherKey) {
             tokenOut = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+            const approvalTransaction: FunctionCall = {
+                contractType: ContractTypes.TestToken,
+                contractAddress: tokenIn,
+                action: 'approve',
+                params: [proxyAddress, MAX_UINT.toString()]
+            }
 
-            await providerStore.sendTransaction(
-                ContractTypes.ExchangeProxy,
-                proxyAddress,
-                'multihopBatchSwapExactOut',
-                [swaps, tokenIn, tokenOut, maxAmountIn.toString()]
-            );
+            const tradeTransaction: FunctionCall = {
+                contractType: ContractTypes.ExchangeProxy,
+                contractAddress: proxyAddress,
+                action: 'multihopBatchSwapExactOut',
+                params: [
+                    swaps,
+                    tokenIn,
+                    tokenOut,
+                    maxAmountIn.toString(),
+                ]
+            }
+
+            providerStore.sendTransactions([approvalTransaction, tradeTransaction]);
         } else {
-            await providerStore.sendTransaction(
-                ContractTypes.ExchangeProxy,
-                proxyAddress,
-                'multihopBatchSwapExactOut',
-                [swaps, tokenIn, tokenOut, maxAmountIn.toString()]
-            );
+            const approvalTransaction: FunctionCall = {
+                contractType: ContractTypes.TestToken,
+                contractAddress: tokenIn,
+                action: 'approve',
+                params: [proxyAddress, MAX_UINT.toString()]
+            }
+
+            const tradeTransaction: FunctionCall = {
+                contractType: ContractTypes.ExchangeProxy,
+                contractAddress: proxyAddress,
+                action: 'multihopBatchSwapExactOut',
+                params: [
+                    swaps,
+                    tokenIn,
+                    tokenOut,
+                    maxAmountIn.toString(),
+                ]
+            }
+
+            providerStore.sendTransactions([approvalTransaction, tradeTransaction]);
         }
     };
 
