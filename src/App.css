@@ -1,12 +1,12 @@
 :root {
     /* General Styles */
-    --background: #21222c;
-    --body-text: #90a4ae;
+    --background: #ffffff;
+    --body-text: #000000;
     --exit-modal-color: #dfe3e9;
     --error-color: #ff8a80;
-    --header-text: #fafafa;
+    --header-text: #000000;
     --info-border: #ffffff;
-    --link-text: #8c9eff;
+    --link-text: #008c73;
     --pie-chart-color: #b388ff;
     --token-balance-text: #90a4ae;
     --warning: #ff8a80;
@@ -14,28 +14,28 @@
     --info: #ffc780;
 
     /* Input Fields */
-    --input-text: #fafafa;
+    --input-text: #000000;
     --input-placeholder-text: #575860;
-    --input-hover-background: #31313b;
+    --input-hover-background: #fafafa;
     --input-hover-placeholder-text: #818187;
     --input-hover-border: #4c5480;
 
     /* Button Styles */
     --button-text: #fafafa;
-    --button-background: #536dfe;
-    --button-border: #3d5afe;
+    --button-background: #008c73;
+    --button-border: #008c73;
     --inactive-button-border: rgba(140, 158, 255, 0.2);
-    --inactive-button-text: rgba(255, 255, 255, 0.6);
+    --inactive-button-text: rgba(0, 0, 0, 0.6);
 
     /* Fonts */
     --roboto: 'Roboto', sans-serif;
 
     /* Panel Styles */
-    --panel-border: #41476b;
-    --panel-background: #2e2f39;
+    --panel-border: #b2b5b2;
+    --panel-background: #ffffff;
     --panel-hover-border: #4c5480;
-    --panel-hover-background: #31313b;
-    --panel-header-background: #282932;
+    --panel-hover-background: #f7f5f5;
+    --panel-header-background: #f7f5f5;
 
     /* Selector Styles */
     --highlighted-selector-background: #41476b;
@@ -59,7 +59,7 @@ body {
 }
 
 .popup-content {
-    color: var(--background);
+    color: var(--body-text);
     border-radius: 4px;
     display: flex;
     align-items: center;

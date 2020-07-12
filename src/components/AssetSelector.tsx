@@ -26,7 +26,7 @@ const ModalContent = styled.div`
     background-color: var(--panel-background);
     border: 1px solid var(--panel-border);
     border-radius: 4px;
-    color: white;
+    color: black;
 `;
 
 const AssetSelectorHeader = styled.div`

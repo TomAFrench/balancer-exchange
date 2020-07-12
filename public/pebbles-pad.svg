@@ -4,7 +4,7 @@
     <title>pebbles-pad</title>
     <desc>Created with Sketch.</desc>
     <g id="Spread" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="pebbles-pad" transform="translate(1.000000, 1.000000)" fill="#FFFFFF">
+        <g id="pebbles-pad" transform="translate(1.000000, 1.000000)" fill="#000000">
             <g id="pebbles" transform="translate(17.000000, 38.000000)">
                 <g transform="translate(0.000000, 0.741803)">
                     <path d="M155.878763,109.234443 C194.82596,114.994114 222,128.020689 222,143.168033 C222,163.652365 172.303607,180.258197 111,180.258197 C49.6963928,180.258197 0,163.652365 0,143.168033 C0,128.020689 27.1740399,114.994114 66.121237,109.234443 C79.4985588,111.954918 94.776664,113.495902 111,113.495902 C126.816331,113.495902 141.734263,112.031267 154.869366,109.438764 Z" id="peb-bot"></path>
