@@ -61,11 +61,10 @@ const SlippageSelectorPlaceholder = styled.div`
 
 enum ButtonState {
     NO_WALLET,
-    UNLOCK,
     SWAP,
 }
 
-const ButtonText = ['Connect Wallet', 'Unlock', 'Swap'];
+const ButtonText = ['Connect Wallet', 'Swap'];
 
 const SwapForm = observer(({ tokenIn, tokenOut }) => {
     const {
@@ -74,7 +73,6 @@ const SwapForm = observer(({ tokenIn, tokenOut }) => {
             contractMetadataStore,
             swapFormStore,
             providerStore,
-            tokenStore,
             errorStore,
             dropdownStore,
         },
@@ -121,18 +119,9 @@ const SwapForm = observer(({ tokenIn, tokenOut }) => {
             case ButtonState.SWAP:
                 swapHandler();
                 break;
-            case ButtonState.UNLOCK:
-                unlockHandler();
-                break;
             default:
                 throw new Error('Invalid button state');
         }
-    };
-
-    const unlockHandler = async () => {
-        const tokenToUnlock = swapFormStore.inputToken.address;
-        const proxyAddress = contractMetadataStore.getProxyAddress();
-        await tokenStore.approveMax(tokenToUnlock, proxyAddress);
     };
 
     const swapHandler = async () => {
@@ -203,16 +192,12 @@ const SwapForm = observer(({ tokenIn, tokenOut }) => {
         account,
         userAllowance: BigNumber | undefined
     ): ButtonState => {
-        const sufficientAllowance = userAllowance && userAllowance.gt(0);
         const chainId = providerStore.providerStatus.activeChainId;
         if (chainId && chainId !== supportedChainId) {
             return ButtonState.SWAP;
         }
 
         if (account) {
-            if (!sufficientAllowance) {
-                return ButtonState.UNLOCK;
-            }
             return ButtonState.SWAP;
         }
 
@@ -248,7 +233,6 @@ const SwapForm = observer(({ tokenIn, tokenOut }) => {
                 swapFormStore.outputToken.address === 'ether');
 
         if (
-            buttonState === ButtonState.UNLOCK ||
             buttonState === ButtonState.NO_WALLET
         ) {
             return true;
