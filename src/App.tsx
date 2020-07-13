@@ -5,6 +5,7 @@ import Web3ReactManager from 'components/Web3ReactManager';
 import SwapForm from 'components/SwapForm';
 import { isAddress, toChecksum } from 'utils/helpers';
 import './App.css';
+import BalancerExplainer from 'components/BalancerExplainer';
 
 const BuildVersion = styled.div`
     display: flex;
@@ -24,6 +25,11 @@ const BuildLink = styled.a`
     color: var(--body-text);
     text-decoration: none;
     margin-left: 5px;
+`;
+
+const OuterWrapper = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
 `;
 
 const PoolSwapView = props => {
@@ -52,7 +58,10 @@ const buildId = process.env.REACT_APP_COMMIT_REF || '';
 const App = () => (
     <Web3ReactManager>
         <HashRouter>
-            <Views/>
+            <OuterWrapper>
+                <Views/>
+                <BalancerExplainer />
+            </OuterWrapper>
             <BuildVersion>
                 BUILD ID:{' '}
                 <BuildLink
