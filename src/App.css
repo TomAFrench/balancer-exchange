@@ -51,10 +51,6 @@ body {
     background: var(--background);
 }
 
-.app-shell {
-    /* margin-top: 60px; */
-}
-
 #root::-webkit-scrollbar {
     display: none;
 }

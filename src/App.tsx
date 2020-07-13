@@ -26,39 +26,34 @@ const BuildLink = styled.a`
     margin-left: 5px;
 `;
 
+const PoolSwapView = props => {
+    let { tokenIn, tokenOut } = props.match.params;
+    if (isAddress(tokenIn)) {
+        tokenIn = toChecksum(tokenIn);
+    }
+    if (isAddress(tokenOut)) {
+        tokenOut = toChecksum(tokenOut);
+    }
+    return <SwapForm tokenIn={tokenIn} tokenOut={tokenOut} />;
+};
+
+const Views = () => (
+    <Switch>
+        <Route
+            path="/swap/:tokenIn?/:tokenOut?"
+            component={PoolSwapView}
+        />
+        <Redirect from="/" to="/swap" />
+    </Switch>
+)
+
 const App = () => {
-    const PoolSwapView = props => {
-        let { tokenIn, tokenOut } = props.match.params;
-        if (isAddress(tokenIn)) {
-            tokenIn = toChecksum(tokenIn);
-        }
-        if (isAddress(tokenOut)) {
-            tokenOut = toChecksum(tokenOut);
-        }
-
-        return <SwapForm tokenIn={tokenIn} tokenOut={tokenOut} />;
-    };
-
     const buildId = process.env.REACT_APP_COMMIT_REF || '';
-
-    const renderViews = () => {
-        return (
-            <div className="app-shell">
-                <Switch>
-                    <Route
-                        path="/swap/:tokenIn?/:tokenOut?"
-                        component={PoolSwapView}
-                    />
-                    <Redirect from="/" to="/swap" />
-                </Switch>
-            </div>
-        );
-    };
 
     return (
         <Web3ReactManager>
             <HashRouter>
-                {renderViews()}
+                <Views/>
                 <BuildVersion>
                     BUILD ID:{' '}
                     <BuildLink
