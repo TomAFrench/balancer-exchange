@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import logos from '@balancer-labs/assets/assets/index.json';
 import { isAddress } from '../utils/helpers';
-import { EtherKey } from '../stores/Token';
 import { ModalType } from '../stores/SwapForm';
 import { observer } from 'mobx-react';
 import { useStores } from '../contexts/storesContext';
@@ -239,16 +238,16 @@ const Token = observer(
                         placeholder="0"
                         disabled={isDisabled}
                     />
-                    {(tokenAddress === EtherKey &&
-                        modalType === ModalType.INPUT) ||
-                    !showMax ? (
+                    {showMax ?
+                        (
+                            <MaxLink
+                                onClick={() => updateSwapFormData(tokenBalance)}
+                            >
+                                Max
+                            </MaxLink>
+                        )
+                            :(
                         <div />
-                    ) : (
-                        <MaxLink
-                            onClick={() => updateSwapFormData(tokenBalance)}
-                        >
-                            Max
-                        </MaxLink>
                     )}
                 </InputWrapper>
             </Panel>
