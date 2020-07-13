@@ -47,25 +47,23 @@ const Views = () => (
     </Switch>
 )
 
-const App = () => {
-    const buildId = process.env.REACT_APP_COMMIT_REF || '';
+const buildId = process.env.REACT_APP_COMMIT_REF || '';
 
-    return (
-        <Web3ReactManager>
-            <HashRouter>
-                <Views/>
-                <BuildVersion>
-                    BUILD ID:{' '}
-                    <BuildLink
-                        href={`https://github.com/balancer-labs/balancer-exchange/tree/${buildId}`}
-                        target="_blank"
-                    >
-                        {buildId.substring(0, 12)}
-                    </BuildLink>
-                </BuildVersion>
-            </HashRouter>
-        </Web3ReactManager>
-    );
-};
+const App = () => (
+    <Web3ReactManager>
+        <HashRouter>
+            <Views/>
+            <BuildVersion>
+                BUILD ID:{' '}
+                <BuildLink
+                    href={`https://github.com/balancer-labs/balancer-exchange/tree/${buildId}`}
+                    target="_blank"
+                >
+                    {buildId.substring(0, 12)}
+                </BuildLink>
+            </BuildVersion>
+        </HashRouter>
+    </Web3ReactManager>
+);
 
 export default App;
