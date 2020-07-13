@@ -18,7 +18,7 @@ const Container = styled.div`
 `;
 
 const ModalContent = styled.div`
-    margin: 15% auto;
+    margin: 0.5% auto;
     display: flex;
     flex-direction: column;
     max-width: 554px;
