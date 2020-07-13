@@ -33,17 +33,17 @@
     /* Panel Styles */
     --panel-border: #b2b5b2;
     --panel-background: #ffffff;
-    --panel-hover-border: #4c5480;
+    --panel-hover-border: #a3a5a3;
     --panel-hover-background: #f7f5f5;
     --panel-header-background: #f7f5f5;
 
     /* Selector Styles */
-    --highlighted-selector-background: #41476b;
-    --highlighted-selector-border: #7785d5;
-    --highlighted-selector-text: #ffffff;
-    --selector-background: #2e2f39;
+    --highlighted-selector-background: #b2b5b2;
+    --highlighted-selector-border: #000000;
+    --highlighted-selector-text: #000000;
+    --selector-background: #f7f5f5;
     --selector-border: #41476b;
-    --selector-text: #fafafa;
+    --selector-text: #000000;
 }
 
 body {

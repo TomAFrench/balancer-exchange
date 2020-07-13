@@ -59,7 +59,7 @@ const ActiveSelectorDropDownCell = styled(SelectorDropDownCell)`
 const Arrow = styled.div`
     width: 12px;
     height: 12px;
-    background: #7785d5;
+    background: #008c73;
     transform: rotate(45deg);
     position: absolute;
     top: -6px;
