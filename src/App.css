@@ -51,7 +51,7 @@ body {
 }
 
 .app-shell {
-    margin-top: 60px;
+    /* margin-top: 60px; */
 }
 
 #root::-webkit-scrollbar {
