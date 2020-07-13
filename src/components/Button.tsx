@@ -33,7 +33,7 @@ const ActiveButton = styled(ButtonBase)`
 `;
 
 const InactiveButton = styled(ButtonBase)`
-    background: var(--background);
+    background: var(--inactive-button-background);
     border: 1px solid var(--inactive-button-border);
     color: var(--inactive-button-text);
 `;

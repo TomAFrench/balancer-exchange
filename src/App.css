@@ -24,8 +24,9 @@
     --button-text: #fafafa;
     --button-background: #008c73;
     --button-border: #008c73;
+    --inactive-button-background: #008c7380;
     --inactive-button-border: rgba(140, 158, 255, 0.2);
-    --inactive-button-text: rgba(0, 0, 0, 0.6);
+    --inactive-button-text: #fafafa;
 
     /* Fonts */
     --roboto: 'Roboto', sans-serif;
