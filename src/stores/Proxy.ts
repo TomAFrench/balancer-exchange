@@ -3,9 +3,8 @@ import { bnum, scale, fromWei, MAX_UINT } from 'utils/helpers';
 import RootStore from 'stores/Root';
 import { BigNumber } from 'utils/bignumber';
 import * as log from 'loglevel';
-import { ContractTypes, FunctionCall } from './Provider';
+import { ContractTypes } from './Provider';
 import { SwapMethods } from './SwapForm';
-import { ethers } from 'ethers';
 import { EtherKey } from './Token';
 import { SorMultiSwap } from './Sor';
 import { calcSpotPrice, bmul, bdiv } from '../utils/balancerCalcs';
@@ -218,7 +217,7 @@ export default class ProxyStore {
         minAmountOut: BigNumber,
         decimalsOut: number
     ) => {
-        const { providerStore, contractMetadataStore } = this.rootStore;
+        const { gnosisStore, contractMetadataStore } = this.rootStore;
         const proxyAddress = contractMetadataStore.getProxyAddress();
 
         console.log(`batchSwapExactIn Swapping: ${tokenIn}->${tokenOut}`);
@@ -241,9 +240,35 @@ export default class ProxyStore {
         if (tokenIn === EtherKey) {
             tokenIn = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
-            providerStore.sendTransaction(
-                ContractTypes.ExchangeProxy,
+            const tradeTransaction = gnosisStore.wrapTransaction(
                 proxyAddress,
+                ContractTypes.ExchangeProxy,
+                'multihopBatchSwapExactIn',
+                [
+                swaps,
+                tokenIn,
+                tokenOut,
+                scale(tokenAmountIn, decimalsIn).toString(),
+                minAmountOut.toString(),
+            ],
+                scale(tokenAmountIn, decimalsIn).toString() // Ether input
+            )
+
+            gnosisStore.sendTransaction(tradeTransaction);
+
+        } else if (tokenOut === EtherKey) {
+            tokenOut = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+
+            const approvalTransaction = gnosisStore.wrapTransaction(
+                tokenIn,
+                ContractTypes.TestToken,
+                'approve',
+                [proxyAddress, MAX_UINT.toString()],
+            )
+
+            const tradeTransaction = gnosisStore.wrapTransaction(
+                proxyAddress,
+                ContractTypes.ExchangeProxy,
                 'multihopBatchSwapExactIn',
                 [
                     swaps,
@@ -252,58 +277,25 @@ export default class ProxyStore {
                     scale(tokenAmountIn, decimalsIn).toString(),
                     minAmountOut.toString(),
                 ],
-                {
-                    value: ethers.utils.bigNumberify(
-                        scale(tokenAmountIn, decimalsIn).toString()
-                    ),
-                }
-            );
-        } else if (tokenOut === EtherKey) {
-            tokenOut = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+            )
 
-            const approvalTransaction: FunctionCall = {
-                contractType: ContractTypes.TestToken,
-                contractAddress: tokenIn,
-                action: 'approve',
-                params: [proxyAddress, MAX_UINT.toString()]
-            }
-
-            const tradeTransaction: FunctionCall = {
-                contractType: ContractTypes.ExchangeProxy,
-                contractAddress: proxyAddress,
-                action: 'multihopBatchSwapExactIn',
-                params: [
-                    swaps,
-                    tokenIn,
-                    tokenOut,
-                    scale(tokenAmountIn, decimalsIn).toString(),
-                    minAmountOut.toString(),
-                ]
-            }
-
-            providerStore.sendTransactions([approvalTransaction, tradeTransaction]);
+            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction]);
         } else {
-            const approvalTransaction: FunctionCall = {
-                contractType: ContractTypes.TestToken,
-                contractAddress: tokenIn,
-                action: 'approve',
-                params: [proxyAddress, MAX_UINT.toString()]
-            }
+            const approvalTransaction = gnosisStore.wrapTransaction(
+                tokenIn,
+                ContractTypes.TestToken,
+                'approve',
+                [proxyAddress, MAX_UINT.toString()],
+            )
 
-            const tradeTransaction: FunctionCall = {
-                contractType: ContractTypes.ExchangeProxy,
-                contractAddress: proxyAddress,
-                action: 'multihopBatchSwapExactIn',
-                params: [
-                    swaps,
-                    tokenIn,
-                    tokenOut,
-                    scale(tokenAmountIn, decimalsIn).toString(),
-                    minAmountOut.toString(),
-                ]
-            }
+            const tradeTransaction = gnosisStore.wrapTransaction(
+                proxyAddress,
+                ContractTypes.ExchangeProxy,
+                'multihopBatchSwapExactIn',
+                [swaps, tokenIn, tokenOut, scale(tokenAmountIn, decimalsIn).toString(), minAmountOut.toString()],
+            )
 
-            providerStore.sendTransactions([approvalTransaction, tradeTransaction]);
+            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction]);
         }
     };
 
@@ -316,7 +308,7 @@ export default class ProxyStore {
         tokenAmountOut: BigNumber,
         decimalsOut: number
     ) => {
-        const { providerStore, contractMetadataStore } = this.rootStore;
+        const { gnosisStore, contractMetadataStore } = this.rootStore;
         const proxyAddress = contractMetadataStore.getProxyAddress();
 
         console.log(`batchSwapExactOut Swapping: ${tokenIn}->${tokenOut}`);
@@ -339,58 +331,49 @@ export default class ProxyStore {
         if (tokenIn === EtherKey) {
             tokenIn = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
-            providerStore.sendTransaction(
-                ContractTypes.ExchangeProxy,
+            const tradeTransaction = gnosisStore.wrapTransaction(
                 proxyAddress,
+                ContractTypes.ExchangeProxy,
                 'multihopBatchSwapExactOut',
                 [swaps, tokenIn, tokenOut, maxAmountIn.toString()],
-                {
-                    value: ethers.utils.bigNumberify(maxAmountIn.toString()),
-                }
-            );
+                maxAmountIn.toString() // Ether input
+            )
+
+            gnosisStore.sendTransaction(tradeTransaction);
         } else if (tokenOut === EtherKey) {
             tokenOut = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-            const approvalTransaction: FunctionCall = {
-                contractType: ContractTypes.TestToken,
-                contractAddress: tokenIn,
-                action: 'approve',
-                params: [proxyAddress, MAX_UINT.toString()]
-            }
 
-            const tradeTransaction: FunctionCall = {
-                contractType: ContractTypes.ExchangeProxy,
-                contractAddress: proxyAddress,
-                action: 'multihopBatchSwapExactOut',
-                params: [
-                    swaps,
-                    tokenIn,
-                    tokenOut,
-                    maxAmountIn.toString(),
-                ]
-            }
+            const approvalTransaction = gnosisStore.wrapTransaction(
+                tokenIn,
+                ContractTypes.TestToken,
+                'approve',
+                [proxyAddress, MAX_UINT.toString()],
+            )
 
-            providerStore.sendTransactions([approvalTransaction, tradeTransaction]);
+            const tradeTransaction = gnosisStore.wrapTransaction(
+                proxyAddress,
+                ContractTypes.ExchangeProxy,
+                'multihopBatchSwapExactOut',
+                [swaps, tokenIn, tokenOut, maxAmountIn.toString()],
+            )
+
+            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction]);
         } else {
-            const approvalTransaction: FunctionCall = {
-                contractType: ContractTypes.TestToken,
-                contractAddress: tokenIn,
-                action: 'approve',
-                params: [proxyAddress, MAX_UINT.toString()]
-            }
+            const approvalTransaction = gnosisStore.wrapTransaction(
+                tokenIn,
+                ContractTypes.TestToken,
+                'approve',
+                [proxyAddress, MAX_UINT.toString()],
+            )
 
-            const tradeTransaction: FunctionCall = {
-                contractType: ContractTypes.ExchangeProxy,
-                contractAddress: proxyAddress,
-                action: 'multihopBatchSwapExactOut',
-                params: [
-                    swaps,
-                    tokenIn,
-                    tokenOut,
-                    maxAmountIn.toString(),
-                ]
-            }
+            const tradeTransaction = gnosisStore.wrapTransaction(
+                proxyAddress,
+                ContractTypes.ExchangeProxy,
+                'multihopBatchSwapExactOut',
+                [swaps, tokenIn, tokenOut, maxAmountIn.toString()],
+            )
 
-            providerStore.sendTransactions([approvalTransaction, tradeTransaction]);
+            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction]);
         }
     };
 

@@ -69,6 +69,7 @@ const ButtonText = ['Connect Wallet', 'Swap'];
 const SwapForm = observer(({ tokenIn, tokenOut }) => {
     const {
         root: {
+            gnosisStore,
             proxyStore,
             contractMetadataStore,
             swapFormStore,
@@ -79,7 +80,7 @@ const SwapForm = observer(({ tokenIn, tokenOut }) => {
     } = useStores();
 
     const supportedChainId = getSupportedChainId();
-    const account = providerStore.providerStatus.account;
+    const account = gnosisStore.safeAddress;
     const chainId = getSupportedChainId();
     const library = providerStore.providerStatus.library;
 

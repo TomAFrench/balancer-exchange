@@ -85,6 +85,7 @@ const AssetOptions = observer(() => {
 
     const {
         root: {
+            gnosisStore,
             providerStore,
             contractMetadataStore,
             swapFormStore,
@@ -93,7 +94,7 @@ const AssetOptions = observer(() => {
         },
     } = useStores();
 
-    const account = providerStore.providerStatus.account;
+    const account = gnosisStore.safeAddress;
     const chainId = providerStore.providerStatus.activeChainId;
 
     const { assetSelectFilter, assetModalState } = swapFormStore;

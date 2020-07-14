@@ -1,5 +1,6 @@
 // Stores
 import ProxyStore from 'stores/Proxy';
+import GnosisStore from 'stores/Gnosis';
 import ProviderStore from 'stores/Provider';
 import BlockchainFetchStore from 'stores/BlockchainFetch';
 import SwapFormStore from 'stores/SwapForm';
@@ -16,6 +17,7 @@ import TokenPanelStore from './TokenPanel';
 
 export default class RootStore {
     proxyStore: ProxyStore;
+    gnosisStore: GnosisStore
     providerStore: ProviderStore;
     blockchainFetchStore: BlockchainFetchStore;
     swapFormStore: SwapFormStore;
@@ -33,6 +35,7 @@ export default class RootStore {
     constructor() {
         this.proxyStore = new ProxyStore(this);
         this.poolStore = new PoolStore(this);
+        this.gnosisStore = new GnosisStore(this);
         this.providerStore = new ProviderStore(this);
         this.blockchainFetchStore = new BlockchainFetchStore(this);
         this.contractMetadataStore = new ContractMetadataStore(this);

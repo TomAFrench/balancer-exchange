@@ -227,8 +227,8 @@ export default class SwapFormStore {
     }
 
     async refreshExactAmountInPreview() {
-        const { proxyStore, providerStore } = this.rootStore;
-        const account = providerStore.providerStatus.account;
+        const { gnosisStore, proxyStore } = this.rootStore;
+        const account = gnosisStore.safeAddress;
         const { inputAmount } = this.inputs;
 
         const preview = await proxyStore.previewBatchSwapExactIn(
@@ -276,8 +276,8 @@ export default class SwapFormStore {
     }
 
     async refreshExactAmountOutPreview() {
-        const { proxyStore, providerStore } = this.rootStore;
-        const account = providerStore.providerStatus.account;
+        const { gnosisStore, proxyStore } = this.rootStore;
+        const account = gnosisStore.safeAddress;
         const { outputAmount } = this.inputs;
 
         const preview = await proxyStore.previewBatchSwapExactOut(

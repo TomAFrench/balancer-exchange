@@ -263,22 +263,16 @@ export default class TokenStore {
     }
 
     @action approveMax = async (tokenAddress, spender) => {
-        const { providerStore } = this.rootStore;
-        await providerStore.sendTransaction(
-            ContractTypes.TestToken,
-            tokenAddress,
-            'approve',
-            [spender, helpers.MAX_UINT.toString()]
+        const { gnosisStore } = this.rootStore;
+        gnosisStore.sendTransaction(
+            gnosisStore.wrapTransaction(tokenAddress, ContractTypes.TestToken, 'approve', [spender, helpers.MAX_UINT.toString()])
         );
     };
 
-    @action revokeApproval = async (tokenAddress, spender) => {
-        const { providerStore } = this.rootStore;
-        await providerStore.sendTransaction(
-            ContractTypes.TestToken,
-            tokenAddress,
-            'approve',
-            [spender, 0]
+    @action revokeApproval = (tokenAddress, spender) => {
+        const { gnosisStore } = this.rootStore;
+        gnosisStore.sendTransaction(
+            gnosisStore.wrapTransaction(tokenAddress, ContractTypes.TestToken, 'approve', [spender, 0])
         );
     };
 

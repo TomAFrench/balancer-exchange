@@ -13,6 +13,7 @@ export default class BlockchainFetchStore {
 
     @action blockchainFetch(accountSwitchOverride?: boolean) {
         const {
+            gnosisStore,
             providerStore,
             tokenStore,
             contractMetadataStore,
@@ -21,7 +22,7 @@ export default class BlockchainFetchStore {
         const active = providerStore.providerStatus.active;
         const chainId = providerStore.providerStatus.activeChainId;
         const library = providerStore.providerStatus.library;
-        const account = providerStore.providerStatus.account;
+        const account = gnosisStore.safeAddress;
 
         if (active && chainId === supportedChainId) {
             library
