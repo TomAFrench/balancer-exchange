@@ -263,7 +263,7 @@ export default class ProxyStore {
                 tokenIn,
                 ContractTypes.TestToken,
                 'approve',
-                [proxyAddress, MAX_UINT.toString()],
+                [proxyAddress, scale(tokenAmountIn, decimalsIn).toString()],
             )
 
             const tradeTransaction = gnosisStore.wrapTransaction(
@@ -285,7 +285,7 @@ export default class ProxyStore {
                 tokenIn,
                 ContractTypes.TestToken,
                 'approve',
-                [proxyAddress, MAX_UINT.toString()],
+                [proxyAddress, scale(tokenAmountIn, decimalsIn).toString()],
             )
 
             const tradeTransaction = gnosisStore.wrapTransaction(
@@ -347,7 +347,7 @@ export default class ProxyStore {
                 tokenIn,
                 ContractTypes.TestToken,
                 'approve',
-                [proxyAddress, MAX_UINT.toString()],
+                [proxyAddress, maxAmountIn.toString()],
             )
 
             const tradeTransaction = gnosisStore.wrapTransaction(
@@ -357,13 +357,21 @@ export default class ProxyStore {
                 [swaps, tokenIn, tokenOut, maxAmountIn.toString()],
             )
 
-            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction]);
+            const revokeApprovalTransaction = gnosisStore.wrapTransaction(
+                tokenIn,
+                ContractTypes.TestToken,
+                'approve',
+                [proxyAddress, 0],
+            )
+
+            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction, revokeApprovalTransaction]);
+
         } else {
             const approvalTransaction = gnosisStore.wrapTransaction(
                 tokenIn,
                 ContractTypes.TestToken,
                 'approve',
-                [proxyAddress, MAX_UINT.toString()],
+                [proxyAddress, maxAmountIn.toString()],
             )
 
             const tradeTransaction = gnosisStore.wrapTransaction(
@@ -373,7 +381,14 @@ export default class ProxyStore {
                 [swaps, tokenIn, tokenOut, maxAmountIn.toString()],
             )
 
-            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction]);
+            const revokeApprovalTransaction = gnosisStore.wrapTransaction(
+                tokenIn,
+                ContractTypes.TestToken,
+                'approve',
+                [proxyAddress, 0],
+            )
+
+            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction, revokeApprovalTransaction]);
         }
     };
 
