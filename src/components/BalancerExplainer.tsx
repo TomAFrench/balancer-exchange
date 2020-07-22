@@ -52,7 +52,7 @@ const BalancerExplainer = () => (
         All trades are automatically routed across a number of Balancer's pools of tokens to ensure that you receive the best possible rate.
       </Text>
       <ListWrapper>
-          <ListItem>1. Select the two tokens your would like to trade.</ListItem>
+          <ListItem>1. Select the two tokens you would like to trade.</ListItem>
           <ListItem>2. Enter the amount of tokens you wish to buy/sell.</ListItem>
           <ListItem>3. Check the expected exchange rate of the trade. </ListItem>
           <ListItem>4. If you are happy to proceed then press the swap button. </ListItem>
