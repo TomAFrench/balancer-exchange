@@ -1,4 +1,39 @@
 {
+    "rinkeby": {
+        "chainId": 4,
+        "bFactory": "0x9C84391B443ea3a48788079a5f98e2EaD55c9309",
+        "proxy": "0x49cd3a19f96b757743f36bea433d34e425a831a5",
+        "weth": "0xc778417e063141139fce010982780140aa0cd5ab",
+        "multicall": "0x51A86f7c855e2Ccef4DeCE8b90409C2a639641E5",
+        "tokens": [
+            {
+                "symbol": "ETH",
+                "address": "ether",
+                "decimals": 18,
+                "ticker": "ETH",
+                "iconAddress": "ether",
+                "precision": 4
+            },
+            {
+                "symbol": "DAI",
+                "address": "0xF95c750ECd6179373e7523182f0127CDB0E90c24",
+                "decimals": 18,
+                "ticker": "DAI",
+                "iconAddress": "0x6b175474e89094c44da98b954eedeac495271d0f",
+                "precision": 2,
+                "chartColor": "#fab323"
+            },
+            {
+                "symbol": "USDC",
+                "address": "0x79Fd555b0e5837684c17a486dF730F3c08404d42",
+                "decimals": 6,
+                "ticker": "USDC",
+                "iconAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                "precision": 2,
+                "chartColor": "#2875ca"
+            }
+        ]
+    },
     "ropsten": {
         "chainId": 3,
         "bFactory": "0xeb12Ce3D5C1B34baa3e3dF03D61fCBf4A3E45104",
