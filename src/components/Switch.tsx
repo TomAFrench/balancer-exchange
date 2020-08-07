@@ -47,14 +47,10 @@ const Switch = observer(() => {
     return (
         <Container>
             <Spinner
-                src="/circle.svg"
+                src="circle.svg"
                 style={{ display: showLoader ? 'block' : 'none' }}
             />
-            <SwapIcon
-                src="/swap.svg"
-                onClick={() => switchAssets()}
-                style={{ display: showLoader ? 'none' : 'block' }}
-            />
+            <SwapIcon src="swap.svg" onClick={() => switchAssets()} style={{ display: showLoader ? 'none' : 'block' }} />
         </Container>
     );
 });
