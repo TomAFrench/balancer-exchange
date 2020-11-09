@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import logos from '@balancer-labs/assets/assets/index.json';
 import { isAddress } from '../utils/helpers';
-import { ModalType } from '../stores/SwapForm';
 import { observer } from 'mobx-react';
 import { useStores } from '../contexts/storesContext';
 
@@ -201,9 +200,6 @@ const Token = observer(
             e.target.src = './empty-token.png';
         };
 
-        const modalType =
-            inputName === 'inputAmount' ? ModalType.INPUT : ModalType.OUTPUT;
-
         let isDisabled = !swapFormStore.isValidSwapPair;
 
         return (
@@ -239,15 +235,13 @@ const Token = observer(
                         placeholder="0"
                         disabled={isDisabled}
                     />
-                    {showMax ?
-                        (
-                            <MaxLink
-                                onClick={() => updateSwapFormData(tokenBalance)}
-                            >
-                                Max
-                            </MaxLink>
-                        )
-                            :(
+                    {showMax ? (
+                        <MaxLink
+                            onClick={() => updateSwapFormData(tokenBalance)}
+                        >
+                            Max
+                        </MaxLink>
+                    ) : (
                         <div />
                     )}
                 </InputWrapper>

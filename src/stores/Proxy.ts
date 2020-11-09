@@ -1,5 +1,5 @@
 import { action, observable } from 'mobx';
-import { bnum, scale, fromWei, MAX_UINT } from 'utils/helpers';
+import { bnum, scale, fromWei } from 'utils/helpers';
 import RootStore from 'stores/Root';
 import { BigNumber } from 'utils/bignumber';
 import * as log from 'loglevel';
@@ -245,17 +245,16 @@ export default class ProxyStore {
                 ContractTypes.ExchangeProxy,
                 'multihopBatchSwapExactIn',
                 [
-                swaps,
-                tokenIn,
-                tokenOut,
-                scale(tokenAmountIn, decimalsIn).toString(),
-                minAmountOut.toString(),
-            ],
+                    swaps,
+                    tokenIn,
+                    tokenOut,
+                    scale(tokenAmountIn, decimalsIn).toString(),
+                    minAmountOut.toString(),
+                ],
                 scale(tokenAmountIn, decimalsIn).toString() // Ether input
-            )
+            );
 
             gnosisStore.sendTransaction(tradeTransaction);
-
         } else if (tokenOut === EtherKey) {
             tokenOut = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
@@ -263,8 +262,8 @@ export default class ProxyStore {
                 tokenIn,
                 ContractTypes.TestToken,
                 'approve',
-                [proxyAddress, scale(tokenAmountIn, decimalsIn).toString()],
-            )
+                [proxyAddress, scale(tokenAmountIn, decimalsIn).toString()]
+            );
 
             const tradeTransaction = gnosisStore.wrapTransaction(
                 proxyAddress,
@@ -276,26 +275,38 @@ export default class ProxyStore {
                     tokenOut,
                     scale(tokenAmountIn, decimalsIn).toString(),
                     minAmountOut.toString(),
-                ],
-            )
+                ]
+            );
 
-            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction]);
+            gnosisStore.sendTransactions([
+                approvalTransaction,
+                tradeTransaction,
+            ]);
         } else {
             const approvalTransaction = gnosisStore.wrapTransaction(
                 tokenIn,
                 ContractTypes.TestToken,
                 'approve',
-                [proxyAddress, scale(tokenAmountIn, decimalsIn).toString()],
-            )
+                [proxyAddress, scale(tokenAmountIn, decimalsIn).toString()]
+            );
 
             const tradeTransaction = gnosisStore.wrapTransaction(
                 proxyAddress,
                 ContractTypes.ExchangeProxy,
                 'multihopBatchSwapExactIn',
-                [swaps, tokenIn, tokenOut, scale(tokenAmountIn, decimalsIn).toString(), minAmountOut.toString()],
-            )
+                [
+                    swaps,
+                    tokenIn,
+                    tokenOut,
+                    scale(tokenAmountIn, decimalsIn).toString(),
+                    minAmountOut.toString(),
+                ]
+            );
 
-            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction]);
+            gnosisStore.sendTransactions([
+                approvalTransaction,
+                tradeTransaction,
+            ]);
         }
     };
 
@@ -337,7 +348,7 @@ export default class ProxyStore {
                 'multihopBatchSwapExactOut',
                 [swaps, tokenIn, tokenOut, maxAmountIn.toString()],
                 maxAmountIn.toString() // Ether input
-            )
+            );
 
             gnosisStore.sendTransaction(tradeTransaction);
         } else if (tokenOut === EtherKey) {
@@ -347,48 +358,55 @@ export default class ProxyStore {
                 tokenIn,
                 ContractTypes.TestToken,
                 'approve',
-                [proxyAddress, maxAmountIn.toString()],
-            )
+                [proxyAddress, maxAmountIn.toString()]
+            );
 
             const tradeTransaction = gnosisStore.wrapTransaction(
                 proxyAddress,
                 ContractTypes.ExchangeProxy,
                 'multihopBatchSwapExactOut',
-                [swaps, tokenIn, tokenOut, maxAmountIn.toString()],
-            )
+                [swaps, tokenIn, tokenOut, maxAmountIn.toString()]
+            );
 
             const revokeApprovalTransaction = gnosisStore.wrapTransaction(
                 tokenIn,
                 ContractTypes.TestToken,
                 'approve',
-                [proxyAddress, 0],
-            )
+                [proxyAddress, 0]
+            );
 
-            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction, revokeApprovalTransaction]);
-
+            gnosisStore.sendTransactions([
+                approvalTransaction,
+                tradeTransaction,
+                revokeApprovalTransaction,
+            ]);
         } else {
             const approvalTransaction = gnosisStore.wrapTransaction(
                 tokenIn,
                 ContractTypes.TestToken,
                 'approve',
-                [proxyAddress, maxAmountIn.toString()],
-            )
+                [proxyAddress, maxAmountIn.toString()]
+            );
 
             const tradeTransaction = gnosisStore.wrapTransaction(
                 proxyAddress,
                 ContractTypes.ExchangeProxy,
                 'multihopBatchSwapExactOut',
-                [swaps, tokenIn, tokenOut, maxAmountIn.toString()],
-            )
+                [swaps, tokenIn, tokenOut, maxAmountIn.toString()]
+            );
 
             const revokeApprovalTransaction = gnosisStore.wrapTransaction(
                 tokenIn,
                 ContractTypes.TestToken,
                 'approve',
-                [proxyAddress, 0],
-            )
+                [proxyAddress, 0]
+            );
 
-            gnosisStore.sendTransactions([approvalTransaction, tradeTransaction, revokeApprovalTransaction]);
+            gnosisStore.sendTransactions([
+                approvalTransaction,
+                tradeTransaction,
+                revokeApprovalTransaction,
+            ]);
         }
     };
 
