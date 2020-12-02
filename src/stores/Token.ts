@@ -6,7 +6,7 @@ import { bnum, formatBalanceTruncated } from 'utils/helpers';
 import { FetchCode } from './Transaction';
 import { BigNumber } from 'utils/bignumber';
 import { MAX_UINT, isAddress } from 'utils/helpers';
-import { Interface } from 'ethers/utils';
+import { Interface } from 'ethers/lib/utils';
 import * as ethers from 'ethers';
 
 const tokenAbi = require('../abi/TestToken').abi;
@@ -265,14 +265,24 @@ export default class TokenStore {
     @action approveMax = async (tokenAddress, spender) => {
         const { gnosisStore } = this.rootStore;
         gnosisStore.sendTransaction(
-            gnosisStore.wrapTransaction(tokenAddress, ContractTypes.TestToken, 'approve', [spender, helpers.MAX_UINT.toString()])
+            gnosisStore.wrapTransaction(
+                tokenAddress,
+                ContractTypes.TestToken,
+                'approve',
+                [spender, helpers.MAX_UINT.toString()]
+            )
         );
     };
 
     @action revokeApproval = (tokenAddress, spender) => {
         const { gnosisStore } = this.rootStore;
         gnosisStore.sendTransaction(
-            gnosisStore.wrapTransaction(tokenAddress, ContractTypes.TestToken, 'approve', [spender, 0])
+            gnosisStore.wrapTransaction(
+                tokenAddress,
+                ContractTypes.TestToken,
+                'approve',
+                [spender, 0]
+            )
         );
     };
 
@@ -300,11 +310,11 @@ export default class TokenStore {
             if (address !== EtherKey) {
                 balanceCalls.push([
                     address,
-                    iface.functions.balanceOf.encode([account]),
+                    iface.encodeFunctionData('balanceOf', [account]),
                 ]);
                 allowanceCalls.push([
                     address,
-                    iface.functions.allowance.encode([
+                    iface.encodeFunctionData('allowance', [
                         account,
                         contractMetadataStore.getProxyAddress(),
                     ]),
@@ -312,7 +322,7 @@ export default class TokenStore {
 
                 decimalsCalls.push([
                     address,
-                    iface.functions.decimals.encode([]),
+                    iface.encodeFunctionData('decimals', []),
                 ]);
             }
         });
@@ -331,11 +341,11 @@ export default class TokenStore {
             ] = await Promise.all(promises);
 
             const balances = mulBalance.map(value =>
-                bnum(iface.functions.balanceOf.decode(value))
+                bnum(iface.decodeFunctionResult('balanceOf', value).toString())
             );
 
             const allowances = mulAllowance.map(value =>
-                bnum(iface.functions.allowance.decode(value))
+                bnum(iface.decodeFunctionResult('allowance', value).toString())
             );
 
             const ethBalance = bnum(mulEth);
@@ -343,7 +353,9 @@ export default class TokenStore {
             allowances.unshift(bnum(helpers.setPropertyToMaxUintIfEmpty()));
 
             const decimalsList = mulDecimals.map(value =>
-                bnum(iface.functions.decimals.decode(value)).toNumber()
+                bnum(
+                    iface.decodeFunctionResult('decimals', value).toString()
+                ).toNumber()
             );
 
             this.setAllowances(
@@ -391,7 +403,7 @@ export default class TokenStore {
             if (address !== EtherKey) {
                 decimalsCalls.push([
                     address,
-                    iface.functions.decimals.encode([]),
+                    iface.encodeFunctionData('decimals', []),
                 ]);
             }
         });
@@ -402,7 +414,7 @@ export default class TokenStore {
             const [[, mulDecimals]] = await Promise.all(promises);
 
             const decimalsList = mulDecimals.map(value =>
-                bnum(iface.functions.decimals.decode(value))
+                iface.decodeFunctionResult('decimals', value)
             );
             this.setDecimals(tokenList, decimalsList);
             console.log('[Token] fetchOnChainTokenDecimals Finished');
